@@ -1,0 +1,307 @@
+use Libraries.Game.Game
+use Libraries.Game.Graphics.Camera
+use Libraries.Game.Graphics.Model
+use Libraries.Game.Graphics.Color
+use Libraries.Compute.Vector3
+use Libraries.Game.Graphics.AmbientLight
+use Libraries.Game.Graphics.DirectionalLight
+use Libraries.Game.Graphics.PointLight
+use Libraries.Game.Audio3D
+use Libraries.Interface.TextBox
+
+/*
+    This is a default class for creating a game in Quorum. Note that the Main 
+    action begins by calling StartGame(), which loads a window a game can 
+    be displayed in. The action CreateGame is where the game should load any 
+    assets, like images to be displayed, frames of animation, or sounds to be
+    played. 
+*/
+class Main is Game
+    Camera camera = undefined
+
+    Model lightbulb
+    PointLight hallLight
+    Audio3D song
+
+
+    /*
+        This action, Main, starts our computer program. In Quorum, programs always
+        begin from Main.
+    */
+    action Main
+        StartGame()
+    end
+
+    /*
+        This action sets up the default values for a game. For example, we might
+        use the Libraries.Game.Graphics.Drawable class to load up an image or 
+        a shape. Or, we might add a Libraries.Interface.Button for making something clickable
+        or a Libraries.Interface.TextBox for gathering user input in a game.
+    */
+    action CreateGame
+
+                TextBox box
+                box:SetPosition(100, 100)
+                box:Initialize(100, 50)
+                Add(box)
+                AddKeyboardListener(box)
+
+        camera = GetCamera3D()
+        camera:SetPosition(0, 25, -500)
+        camera:LookAt(0, 0, 0)
+        
+        createHallway()
+
+        DirectionalLight light
+        light:SetColor(0.86, 1, 0.97, 1)
+        light:SetDirection(0.1, -1, 2)
+        Add(light)
+
+        AmbientLight ambient
+        ambient:SetColor(0.3, 0.3, 0.3, 1)
+        SetAmbientLight(ambient)
+
+    Color bulb
+    bulb:SetColor(0.98, 0.98, 0.82, 1)
+    lightbulb:LoadCylinder(10, 2, 10, bulb)
+    lightbulb:SetPosition(0, 35, -500)
+    hallLight:SetColor(bulb)
+    hallLight:SetPosition(0, -3, 0)
+    hallLight:SetIntensity(7500)
+    lightbulb:Add(hallLight)
+    Add(lightbulb)
+
+    song:Load("song.ogg")
+    song:EnableLooping()
+    song:Play()
+    lightbulb:Add(song)
+    end
+
+    action Update(number seconds)
+
+    Vector3 point = lightbulb:GetGlobalPosition()
+    if point:GetZ() < 50
+        lightbulb:Move(0, 0, 0.5)
+    end    
+
+
+    end
+
+    action createHallway
+    //This action builds a hallway in our game along with various objects in the hallway
+        Model floor
+        Model ceiling
+        Model wallLeft
+        Model wallRight
+
+        Model table
+        Model leg1
+        Model leg2
+        Model leg3
+        Model leg4
+
+        Model vase
+        Model stem
+        Model center
+
+        Model rug
+        Model portrait
+        Model mirror
+
+        Model door
+        Model doorknob
+
+        //These are all of the colors used in the hallway
+        Color color
+        color = color:Gray()
+        Color wood
+        wood:SetColor(0.52, 0.37, 0.26, 1)
+        Color glass
+        glass:SetColor(0.61, 0.8, 0.61, 0.25)
+        Color stemGreen
+        stemGreen:SetColor(0.27, 0.32, 0.24, 1)
+        Color flowerCenter
+        flowerCenter:SetColor(0.42, 0.26, 0.15, 1)
+        Color petal
+        petal:SetColor(0.81, 0.71, 0.23, 1)
+        Color purple
+        purple:SetColor(0.41, 0.27, 0.54, 1)
+        Color reflect
+        reflect:SetColor(0.73, 1, 1, 0.25)
+
+        //Load the actual hallway
+        ceiling:LoadBox(50, 0.1, 500, color)
+        floor:LoadBox(50, 0.1, 500, color)
+        wallLeft:LoadBox(0.1, 100, 500, color)
+        wallRight:LoadBox(0.1, 100, 500, color)
+        
+        ceiling:SetPosition(0, 50, -250)
+        floor:SetPosition(0, -50, -250)
+        wallLeft:SetPosition(-25, 0, -250)
+        wallRight:SetPosition(25, 0, -250)
+        
+        //Put door at the end of the hall
+        door:LoadBox(50, 100, 0.1, wood)
+        door:SetZ(0)
+        doorknob:LoadCylinder(5, 2.5, 5, petal)
+        doorknob:Rotate(1, 0, 0, 90)
+        doorknob:SetPosition(19, 0, 1.75)
+        door:Add(doorknob)
+
+        Add(floor)
+        Add(ceiling)
+        Add(wallLeft)
+        Add(wallRight)
+        Add(door)
+        
+        //Adds a rug in the hall
+        rug:LoadCylinder(30, 0.5, 100, purple)
+        rug:SetPosition(0, -49.5, -300)
+        Add(rug)
+        
+        //Adds a portrait in the hall
+        portrait:LoadBox(1, 50, 50, "Logo.png")
+        portrait:SetPosition(0, 0, -100)
+        portrait:Rotate(1, 0, 0, -90)
+        wallLeft:Add(portrait)
+
+        //Places a mirror on the wall
+        mirror:LoadCylinder(25, 0.5, 15, reflect)
+        mirror:SetPosition(0, -12.5, -150)
+        mirror:Rotate(0, 0, 1, 90)
+        wallRight:Add(mirror)
+
+        //Build a table for the hall
+        table:LoadBox(15, 1, 15, wood)
+        leg1:LoadCylinder(1, 15, 1, wood)
+        leg2:LoadCylinder(1, 15, 1, wood)
+        leg3:LoadCylinder(1, 15, 1, wood)
+        leg4:LoadCylinder(1, 15, 1, wood)
+        leg1:SetPosition(7, -7.5, 7)
+        leg2:SetPosition(-7, -7.5, 7)
+        leg3:SetPosition(7, -7.5, -7)
+        leg4:SetPosition(-7, -7.5, -7)
+        table:Add(leg1)
+        table:Add(leg2)
+        table:Add(leg3)
+        table:Add(leg4)
+        table:SetPosition(17.5, -35, -400)
+
+        //Put a vase on the table
+        vase:LoadCylinder(3, 5, 3, glass)
+        vase:SetY(2.5)
+        table:Add(vase)
+
+        //Plut flower stem in vase
+        stem:LoadCylinder(0.5, 6, 0.5, stemGreen)
+        stem:SetPosition(0, 2, 0)
+
+        //create the center of the flower
+        center:LoadCylinder(2, 0.5, 2, flowerCenter)
+        center:SetPosition(0, 3, 0)
+  
+        //This code builds petals and arranges them around the flower center 
+        //using the RotateAround action
+        Vector3 yaxis
+        yaxis:Set(0, 1, 0)
+        Vector3 origin
+        origin:Set(0, 0, 0)
+        number wide = 0.75
+        Vector3 rotation 
+        rotation:Set(1, 0, 0)
+
+        Model petal1 
+        petal1:LoadCylinder(2, 0.1, wide, petal)
+        petal1:SetPosition(1.75, 0, 0)
+        center:Add(petal1)
+           
+        Model petal2
+        petal2:LoadCylinder(2, 0.1, wide, petal)
+        petal2:SetPosition(-1.75, 0, 0)
+        center:Add(petal2)
+
+        Model petal3 
+        petal3:LoadCylinder(wide, 0.1, 2, petal)
+        petal3:SetPosition(0, 0, 1.75)
+        center:Add(petal3)
+           
+        Model petal4
+        petal4:LoadCylinder(wide, 0.1, 2, petal)
+        petal4:SetPosition(0, 0, -1.75)
+        center:Add(petal4)
+
+        Model petal5 
+        petal5:LoadCylinder(2, 0.1, wide, petal)
+        petal5:SetPosition(1.75, 0, 0)
+        RotateAround(petal5, origin, yaxis, 30)
+        center:Add(petal5)
+           
+        Model petal6
+        petal6:LoadCylinder(2, 0.1, wide, petal)
+        petal6:SetPosition(-1.75, 0, 0)
+        RotateAround(petal6, origin, yaxis, 30)
+        center:Add(petal6)
+
+        Model petal7 
+        petal7:LoadCylinder(wide, 0.1, 2, petal)
+        petal7:SetPosition(0, 0, 1.75)
+        RotateAround(petal7, origin, yaxis, 30)
+        center:Add(petal7)
+           
+        Model petal8
+        petal8:LoadCylinder(wide, 0.1, 2, petal)
+        petal8:SetPosition(0, 0, -1.75)
+        RotateAround(petal8, origin, yaxis, 30)
+        center:Add(petal8)
+
+        Model petal9 
+        petal9:LoadCylinder(2, 0.1, wide, petal)
+        petal9:SetPosition(1.75, 0, 0)
+        RotateAround(petal9, origin, yaxis, 60)
+        center:Add(petal9)
+           
+        Model petal10
+        petal10:LoadCylinder(2, 0.1, wide, petal)
+        petal10:SetPosition(-1.75, 0, 0)
+        RotateAround(petal10, origin, yaxis, 60)
+        center:Add(petal10)
+
+        Model petal11 
+        petal11:LoadCylinder(wide, 0.1, 2, petal)
+        petal11:SetPosition(0, 0, 1.75)
+        RotateAround(petal11, origin, yaxis, 60)
+        center:Add(petal11)
+           
+        Model petal12
+        petal12:LoadCylinder(wide, 0.1, 2, petal)
+        petal12:SetPosition(0, 0, -1.75)
+        RotateAround(petal12, origin, yaxis, 60)
+        center:Add(petal12)
+        
+        center:Rotate(rotation, 45, true)
+
+        stem:Add(center)
+        
+        vase:Add(stem)
+
+        Add(table)
+    end
+    /*
+        The update action is called on every "frame" of animation in a game. This
+        action should be used to do operations on items. So, for example, we 
+        might use this action to change frames of animation, to rotate items, 
+        or to make creatures jump.
+    */
+    
+    action RotateAround (Model model, Vector3 point, Vector3 axis, number degrees)
+    //This action was created to help arrange flower petals around the center of the flower. 
+    //It needs the model to rotate, the point and axis to rotate around, and the number of degree
+        Vector3 calcVector
+        calcVector:Set(point)
+        calcVector:Subtract(model:GetPosition())
+        model:Move(calcVector)
+        model:Rotate(axis, -degrees, false)
+        calcVector:Rotate(axis, degrees)
+        model:Move(-calcVector:GetX(), -calcVector:GetY(), -calcVector:GetZ())
+    end
+end
